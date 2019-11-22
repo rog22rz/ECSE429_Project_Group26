@@ -29,7 +29,7 @@ public class Mutation {
 	private static int[] mutantCount = new int[4];  	
 	private static int readIndex = 1;
 	
-	private static String inputFile = "SUT.java"; 
+	private static String inputFile = "SUT"; 
 
 	public static void main(String[] args) {
 		
@@ -41,13 +41,32 @@ public class Mutation {
 		initMap();
 		initTestSuit();
 		
-		readFile(inputFile);
+		readFile(inputFile + ".java");
 		createList("mutant_librairy.txt");
-		createMutantFiles(inputFile);
+		createMutantFiles(inputFile + ".java");
 		
-		getFaultFreeOutput();
-		runAllMutantsFiles();
+		try {
+			getFaultFreeOutput();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			runAllMutantsFiles();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+		for(int i = 0; i < faultFreeOutputs.length; i++) {
+			System.out.println(faultFreeOutputs[i]);
+		}
+		
+		for(int i = 0; i < mutantOutputs.size(); i++) {
+			for(int y = 0; y < testSuit.size(); y ++) {
+				System.out.println(mutantOutputs.get(i)[y]);
+			}
+		}
 	}
 
 	public static void initMap() {
@@ -172,7 +191,7 @@ public class Mutation {
 		
 		for(int i = 0; i < mutants.size(); i++) {
 			
-			baseName = "generatedFiles/injectedMutant_";
+			baseName = "generatedFiles\\injectedMutant";
 			
 			Mutant current = mutants.get(i);
 			
@@ -181,8 +200,8 @@ public class Mutation {
 			for(int y = 0; y < mutants.length; y++) {
 				
 				//Format file name
-				String outputFileName = baseName + "#" + String.valueOf(fileNumber) + "_" + "@line" + 
-							String.valueOf(current.lineOfCode) + "_" + getStringOfArithmetic(mutants[y]);
+				String outputFileName = baseName + String.valueOf(fileNumber) + "Line" + 
+							String.valueOf(current.lineOfCode) + getStringOfArithmetic(mutants[y]);
 				
 				File outputFile = new File(outputFileName + ".java");
 				
@@ -192,6 +211,11 @@ public class Mutation {
 						
 						String line;
 						while ((line = reader.readLine()) != null) {
+							
+							if (line.contains(inputFile)) {
+								String newName = outputFileName.replace("generatedFiles\\", "");
+								line = line.replace(inputFile, newName);
+							}
 							
 							//Changes original arithmetic for mutant at proper line and index
 							if(readIndex == current.lineOfCode) {
@@ -208,7 +232,6 @@ public class Mutation {
 					
 				} catch (Exception e) {
 					e.printStackTrace();
-					//System.out.println("Error occured\n");
 				}
 				
 				fileNumber++;
@@ -233,14 +256,18 @@ public class Mutation {
 		}	
 	}
 	
-	public static void getFaultFreeOutput() {
+	public static void getFaultFreeOutput() throws Exception {
+		
+		Process pro1 = Runtime.getRuntime().exec("javac -cp src " + inputFile + ".java");
+		pro1.waitFor();
 		
 		for(int y = 0; y < testSuit.size(); y++) {
 			try {
-				InputStream in = runFile(inputFile + " " + 
-							String.valueOf(testSuit.get(y).arg1) + " " + String.valueOf(testSuit.get(y).arg2));
+				Process pro2 = Runtime.getRuntime().exec("cmd.exe /c java " + inputFile + " " + 
+										String.valueOf(testSuit.get(y).arg1) + " " + String.valueOf(testSuit.get(y).arg2));
+				pro2.waitFor();
 				
-				faultFreeOutputs[y] = streamToString(in);
+				faultFreeOutputs[y] = streamToString(pro2.getInputStream());
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -248,17 +275,29 @@ public class Mutation {
 		}	
 	}
 	
-	public static void runAllMutantsFiles() {
+	public static void runAllMutantsFiles() throws Exception {
 		
 		for(int i = 0; i < fileNames.size(); i++) {
 			
 			String[] outputs = new String[testSuit.size()]; 
 			
+			Process pro1 = Runtime.getRuntime().exec("javac -cp src " + fileNames.get(i) + ".java");
+			pro1.waitFor();
+			
 			for(int y = 0; y < testSuit.size(); y++) {
 				try {
-					InputStream in = runFile(fileNames.get(i) + " " + 
-								String.valueOf(testSuit.get(y).arg1) + " " + String.valueOf(testSuit.get(y).arg2));
-					String output = streamToString(in);
+					Process pro3 = Runtime.getRuntime().exec("cmd.exe /c cd generatedFiles");
+					pro3.waitFor();
+					
+					pro3 = Runtime.getRuntime().exec("cmd.exe /c java " + fileNames.get(i).replace("generatedFiles\\", "") + " " + 
+							String.valueOf(testSuit.get(y).arg1) + " " + String.valueOf(testSuit.get(y).arg2));
+					pro3.waitFor();
+					String output = streamToString(pro3.getInputStream());
+					
+					pro3 = Runtime.getRuntime().exec("cmd.exe /c cd ..");
+					pro3.waitFor();
+							
+					System.out.println(output);
 					
 					outputs[y] = output;
 					
@@ -281,16 +320,4 @@ public class Mutation {
 		}
         return line;
 	}
-	
-	//Run fault free SUT to get the expected output
-	public static InputStream runFile(String command) throws Exception {
-		
-		Process pro1 = Runtime.getRuntime().exec("javac -cp src " + command + "java");
-		pro1.waitFor();
-		Process pro2 = Runtime.getRuntime().exec("cmd.exe /c java " + command);
-		pro2.waitFor();
-		
-		return pro2.getInputStream();
-	}
-	
 }

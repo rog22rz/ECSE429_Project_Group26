@@ -1,12 +1,12 @@
 
-public class SUT {
+public class injectedMutant6Line9div {
 	
 	public static int addition(int a, int b) {
 		return a+b;
 	}
 	
 	public static int subtraction(int a, int b) {
-		return a-b;
+		return a/b;
 	}
 	
 	public static int multiplication(int a, int b) {

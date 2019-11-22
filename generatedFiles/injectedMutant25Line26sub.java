@@ -1,5 +1,5 @@
 
-public class SUT {
+public class injectedMutant25Line26sub {
 	
 	public static int addition(int a, int b) {
 		return a+b;
@@ -23,7 +23,7 @@ public class SUT {
 		int arg2 = Integer.parseInt(args[1]);
 		
 		//double mainResult = addition(arg1, arg2) + subtraction(arg1,arg2) +
-								multiplication(arg1,arg2) + division(arg1, arg2);
+								multiplication(arg1,arg2) - division(arg1, arg2);
 		
 		System.out.println(addition(arg1, arg2));
 		
