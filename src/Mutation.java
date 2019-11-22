@@ -3,6 +3,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /*
@@ -19,6 +22,7 @@ public class Mutation {
 
 	private static Map<Integer,Character> arithMap = new HashMap<Integer,Character>();
 	private static ArrayList<Mutant> mutants = new ArrayList<Mutant>();
+	private static ArrayList<String> fileNames = new ArrayList<String>();
 	private static int[] mutantCount = new int[4];  	
 	private static int readIndex = 1;
 	
@@ -35,6 +39,14 @@ public class Mutation {
 		readFile(inputFile);
 		createList("mutant_librairy.txt");
 		createMutantFiles(inputFile);
+		
+		try {
+			getFaultfreeOutput()
+;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 
 	public static void initMap() {
@@ -181,6 +193,8 @@ public class Mutation {
 						readIndex = 1;
 					}
 					
+					fileNames.add(outputFileName);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 					//System.out.println("Error occured\n");
@@ -206,6 +220,27 @@ public class Mutation {
 			default:
 				return "und";
 		}	
+	}
+	
+	private static void printLines(String cmd, InputStream ins) throws Exception {
+		String line = null;
+		BufferedReader in = new BufferedReader(new InputStreamReader(ins));
+		while ((line = in.readLine()) != null) {
+			System.out.println(cmd + " " + line);
+		}
+	}
+	
+	//Run fault free SUT to get the expected output
+	public static void getFaultfreeOutput() throws Exception {
+
+		Process pro = Runtime.getRuntime().exec("javac -cp src " + inputFile);
+		pro.waitFor();
+		pro = Runtime.getRuntime().exec("java " + "ECSE429_Project_Group26\\SUT");
+		pro.waitFor();
+		
+		printLines(inputFile + " stdout:", pro.getInputStream());
+        printLines(inputFile + " stderr:", pro.getErrorStream());
+        System.out.println(inputFile + " exitValue() " + pro.exitValue());
 	}
 	
 }
