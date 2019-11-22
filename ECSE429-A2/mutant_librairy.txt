@@ -1,0 +1,35 @@
+Mutant #1:
+	Inserted at line: 5
+	Original operation: +
+	Mutant operations: -,*,/
+
+Mutant #2:
+	Inserted at line: 9
+	Original operation: -
+	Mutant operations: +,*,/
+
+Mutant #3:
+	Inserted at line: 13
+	Original operation: *
+	Mutant operations: +,-,/
+
+Mutant #4:
+	Inserted at line: 17
+	Original operation: /
+	Mutant operations: +,-,*
+
+Mutant #5:
+	Inserted at line: 21
+	Original operation: -
+	Mutant operations: +,*,/
+
+Mutant #6:
+	Inserted at line: 21
+	Original operation: *
+	Mutant operations: +,-,/
+
+------- Count of inserted mutants ----------
+'+': 5
+'-': 4
+'*': 4
+'/': 5
