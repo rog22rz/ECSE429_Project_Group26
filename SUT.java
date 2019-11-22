@@ -23,10 +23,10 @@ public class SUT {
 	
 	public static void main(String[] args) {
 		
-		addition(1,2);
-		subtraction(2,1);
-		multiplication(1,2);
-		division(2,1);
+		System.out.println(addition(args[0],args[1]));
+		System.out.println(subtraction(args[0],args[1]));
+		System.out.println(multiplication(args[0],args[1]));
+		System.out.println(division(args[0],args[1]));
 		
 	}
 	
