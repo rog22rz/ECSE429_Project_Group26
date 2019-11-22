@@ -23,6 +23,9 @@ public class Mutation {
 	private static Map<Integer,Character> arithMap = new HashMap<Integer,Character>();
 	private static ArrayList<Mutant> mutants = new ArrayList<Mutant>();
 	private static ArrayList<String> fileNames = new ArrayList<String>();
+	private static ArrayList<String[]> mutantOutputs = new ArrayList<String[]>();
+	private static ArrayList<Input> testSuit = new ArrayList<Input>();
+	private static String[] faultFreeOutputs;
 	private static int[] mutantCount = new int[4];  	
 	private static int readIndex = 1;
 	
@@ -36,17 +39,15 @@ public class Mutation {
 		}
 		
 		initMap();
+		initTestSuit();
+		
 		readFile(inputFile);
 		createList("mutant_librairy.txt");
 		createMutantFiles(inputFile);
 		
-		try {
-			getFaultfreeOutput()
-;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+		getFaultFreeOutput();
+		runAllMutantsFiles();
+		
 	}
 
 	public static void initMap() {
@@ -54,6 +55,17 @@ public class Mutation {
 		arithMap.put(1, '-');
 		arithMap.put(2, '*');
 		arithMap.put(3, '/');
+	}
+	
+	public static void initTestSuit() {
+		testSuit.add(new Input(26, 72));
+		testSuit.add(new Input(1, 1));
+		testSuit.add(new Input(1, 0));
+		testSuit.add(new Input(0, 1));
+		testSuit.add(new Input(0, 0));
+		testSuit.add(new Input(Integer.MAX_VALUE, Integer.MAX_VALUE));
+		
+		faultFreeOutputs = new String[testSuit.size()];
 	}
 	
 	public static void readFile(String fileName) {
@@ -170,9 +182,9 @@ public class Mutation {
 				
 				//Format file name
 				String outputFileName = baseName + "#" + String.valueOf(fileNumber) + "_" + "@line" + 
-							String.valueOf(current.lineOfCode) + "_" + getStringOfArithmetic(mutants[y]) + ".txt";
+							String.valueOf(current.lineOfCode) + "_" + getStringOfArithmetic(mutants[y]);
 				
-				File outputFile = new File(outputFileName);
+				File outputFile = new File(outputFileName + ".java");
 				
 				//Read SUT file and write mutant files
 				try (BufferedReader reader = new BufferedReader(new FileReader(inputFileName))) {
@@ -188,8 +200,7 @@ public class Mutation {
 
 							writer.write(line + "\n");
 							readIndex++;
-						}
-						
+						}					
 						readIndex = 1;
 					}
 					
@@ -222,25 +233,64 @@ public class Mutation {
 		}	
 	}
 	
-	private static void printLines(String cmd, InputStream ins) throws Exception {
+	public static void getFaultFreeOutput() {
+		
+		for(int y = 0; y < testSuit.size(); y++) {
+			try {
+				InputStream in = runFile(inputFile + " " + 
+							String.valueOf(testSuit.get(y).arg1) + " " + String.valueOf(testSuit.get(y).arg2));
+				
+				faultFreeOutputs[y] = streamToString(in);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}	
+	}
+	
+	public static void runAllMutantsFiles() {
+		
+		for(int i = 0; i < fileNames.size(); i++) {
+			
+			String[] outputs = new String[testSuit.size()]; 
+			
+			for(int y = 0; y < testSuit.size(); y++) {
+				try {
+					InputStream in = runFile(fileNames.get(i) + " " + 
+								String.valueOf(testSuit.get(y).arg1) + " " + String.valueOf(testSuit.get(y).arg2));
+					String output = streamToString(in);
+					
+					outputs[y] = output;
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}		
+			System.out.println("this worked");
+			mutantOutputs.add(outputs);
+		}		
+	}
+	
+	public static String streamToString(InputStream in) {
 		String line = null;
-		BufferedReader in = new BufferedReader(new InputStreamReader(ins));
-		while ((line = in.readLine()) != null) {
-			System.out.println(cmd + " " + line);
+        BufferedReader buff = new BufferedReader(new InputStreamReader(in));
+        try {
+			line = buff.readLine();
+		} catch (IOException e) {
+			System.out.println("Error stream to string");
 		}
+        return line;
 	}
 	
 	//Run fault free SUT to get the expected output
-	public static void getFaultfreeOutput() throws Exception {
-
-		Process pro = Runtime.getRuntime().exec("javac -cp src " + inputFile);
-		pro.waitFor();
-		pro = Runtime.getRuntime().exec("java " + "ECSE429_Project_Group26\\SUT");
-		pro.waitFor();
+	public static InputStream runFile(String command) throws Exception {
 		
-		printLines(inputFile + " stdout:", pro.getInputStream());
-        printLines(inputFile + " stderr:", pro.getErrorStream());
-        System.out.println(inputFile + " exitValue() " + pro.exitValue());
+		Process pro1 = Runtime.getRuntime().exec("javac -cp src " + command + "java");
+		pro1.waitFor();
+		Process pro2 = Runtime.getRuntime().exec("cmd.exe /c java " + command);
+		pro2.waitFor();
+		
+		return pro2.getInputStream();
 	}
 	
 }

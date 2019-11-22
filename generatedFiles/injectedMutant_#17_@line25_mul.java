@@ -22,7 +22,7 @@ public class SUT {
 		int arg1 = Integer.parseInt(args[0]);
 		int arg2 = Integer.parseInt(args[1]);
 		
-		double mainResult = addition(arg1, arg2) + substraction(arg1,arg2) +
+		double mainResult = addition(arg1, arg2) + substraction(arg1,arg2) *
 								mutiplication(arg1,arg2) + division(arg1, arg2);
 		
 		System.out.println(mainResult);

@@ -19,17 +19,22 @@ Mutant #4:
 	Mutant operations: +,-,*
 
 Mutant #5:
-	Inserted at line: 21
-	Original operation: -
-	Mutant operations: +,*,/
+	Inserted at line: 25
+	Original operation: +
+	Mutant operations: -,*,/
 
 Mutant #6:
-	Inserted at line: 21
-	Original operation: *
-	Mutant operations: +,-,/
+	Inserted at line: 25
+	Original operation: +
+	Mutant operations: -,*,/
+
+Mutant #7:
+	Inserted at line: 26
+	Original operation: +
+	Mutant operations: -,*,/
 
 ------- Count of inserted mutants ----------
-'+': 5
-'-': 4
-'*': 4
-'/': 5
+'+': 3
+'-': 6
+'*': 6
+'/': 6
