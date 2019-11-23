@@ -23,8 +23,8 @@ public class Mutation {
 	private static Map<Integer,Character> arithMap = new HashMap<Integer,Character>();
 	private static ArrayList<Mutant> mutants = new ArrayList<Mutant>();
 	private static ArrayList<String> fileNames = new ArrayList<String>();
-	private static ArrayList<String[]> mutantOutputs = new ArrayList<String[]>();
-	private static ArrayList<Input> testSuit = new ArrayList<Input>();
+	static ArrayList<String[]> mutantOutputs = new ArrayList<String[]>();
+	static ArrayList<Input> testSuit = new ArrayList<Input>();
 	private static String[] faultFreeOutputs;
 	private static int[] mutantCount = new int[4];  	
 	private static int readIndex = 1;
@@ -276,35 +276,24 @@ public class Mutation {
 	
 	public static void runAllMutantsFiles() throws Exception {
 		
-		for(int i = 0; i < fileNames.size(); i++) {
-			
-			String[] outputs = new String[testSuit.size()]; 
-			
-			Process pro1 = Runtime.getRuntime().exec("javac -cp src " + fileNames.get(i) + ".java");
-			pro1.waitFor();
-			
-			for(int y = 0; y < testSuit.size(); y++) {
-				try {
-					Process pro3 = Runtime.getRuntime().exec("cmd.exe /c cd generatedFiles && java " + fileNames.get(i).replace("generatedFiles\\", "") + " " + 
-							String.valueOf(testSuit.get(y).arg1) + " " + String.valueOf(testSuit.get(y).arg2));
-					pro3.waitFor();
-					
-					String output = streamToString(pro3.getInputStream());
-					String error = streamToString(pro3.getErrorStream()) ;
-					
-					if(error != null && !error.contentEquals("null")) {
-						output = error;
-					}
-					
-					outputs[y] = output;
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}		
-			System.out.println("this worked");
-			mutantOutputs.add(outputs);
+		ArrayList<MutantRunner> mutantRunners = new ArrayList<MutantRunner>();
+		ArrayList<Thread> threads = new ArrayList<Thread>();
+		
+		for(int i = 0; i < fileNames.size(); i++) {	
+			MutantRunner mutant = new MutantRunner(fileNames.get(i),i);
+			mutantRunners.add(mutant);
+			Thread t = new Thread(mutant);
+			threads.add(t);
+			t.start();
 		}		
+		
+		for(int i = 0; i < threads.size(); i++) {
+			threads.get(i).join();
+		}
+		
+		for(int i = 0; i < threads.size(); i++) {
+			mutantOutputs.add(mutantRunners.get(i).getIndex(), mutantRunners.get(i).getOutputs());
+		}
 	}
 	
 	public static String streamToString(InputStream in) {
