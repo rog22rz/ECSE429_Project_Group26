@@ -28,6 +28,7 @@ public class Mutation {
 	private static String[] faultFreeOutputs;
 	private static int[] mutantCount = new int[4];  	
 	private static int readIndex = 1;
+	private static int killedNum = 0;
 	
 	private static String inputFile = "SUT"; 
 
@@ -42,23 +43,21 @@ public class Mutation {
 		initTestSuit();
 		
 		readFile(inputFile + ".java");
-		createList("mutant_librairy.txt");
+		createList("mutant_library.txt");
 		createMutantFiles(inputFile + ".java");
 		
 		try {
 			getFaultFreeOutput();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {
 			runAllMutantsFiles();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		for(int i = 0; i < faultFreeOutputs.length; i++) {
+		/*for(int i = 0; i < faultFreeOutputs.length; i++) {
 			System.out.println("Expected: " + faultFreeOutputs[i]);
 		}
 		
@@ -66,7 +65,10 @@ public class Mutation {
 			for(int y = 0; y < testSuit.size(); y ++) {
 				System.out.println("Mutant " + i + " test " + y + " " + mutantOutputs.get(i)[y]);
 			}
-		}
+		}*/
+		
+		assertResults();
+		printFaultSimulation();
 	}
 
 	public static void initMap() {
@@ -78,7 +80,9 @@ public class Mutation {
 	
 	public static void initTestSuit() {
 		testSuit.add(new Input(26, 72));
+		testSuit.add(new Input(2, 2));
 		testSuit.add(new Input(1, 1));
+		testSuit.add(new Input(-1, -1));
 		testSuit.add(new Input(1, 0));
 		testSuit.add(new Input(0, 1));
 		testSuit.add(new Input(0, 0));
@@ -189,6 +193,8 @@ public class Mutation {
 		int fileNumber = 1;
 		
 		for(int i = 0; i < mutants.size(); i++) {
+			
+			mutants.get(i).outputIndexes = new int[]{(i*3), (i*3)+1, (i*3)+2};
 			
 			baseName = "generatedFiles\\injectedMutant";
 			
@@ -305,5 +311,96 @@ public class Mutation {
 			System.out.println("Error stream to string");
 		}
         return line;
+	}
+	
+	public static void assertResults() {
+		
+		for(int i = 0; i < mutants.size(); i++) {
+			
+			ArrayList<Input> vector;
+			
+			for(int y = 0; y < 3; y++) {
+				vector = new ArrayList<Input>();
+				
+				for(int z = 0; z < testSuit.size(); z++) {
+					
+					if(!mutantOutputs.get(mutants.get(i).outputIndexes[y])[z].contentEquals(faultFreeOutputs[z])) {
+						if(!mutants.get(i).killed[y]) {
+							killedNum++;
+						}
+						
+						mutants.get(i).killed[y] = true;
+						
+						vector.add(testSuit.get(z));
+					}			
+				}	
+				
+				mutants.get(i).vectors[y] = vector;
+			}		
+		}
+	}
+	
+	public static void printFaultSimulation() {
+		
+		File outputFile = new File("fault_simulation_results.txt");
+		
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+			
+			//Write all mutants to the output file
+			for (int i = 0; i < mutants.size(); i++) {
+				writer.write(
+					"\nMutant #" + (i+1) + ":\n"
+					+ "\tInserted at line: " + mutants.get(i).lineOfCode + "\n"
+					+ "\tOriginal operation: " + mutants.get(i).originalArithmetic + "\n"
+					+ "\tMutant operations: " + mutants.get(i).insertedMutant[0] + "," 
+					+ mutants.get(i).insertedMutant[1] + "," + mutants.get(i).insertedMutant[2] + "\n\n"
+				);
+				
+				for(int y = 0; y < 3; y++) {
+					if(mutants.get(i).killed[y]) {
+						writer.write(
+							"\tMutant operation " + mutants.get(i).insertedMutant[y] + " has been killed by the following vectors: \n\t"
+						);
+						for(int z = 0; z < mutants.get(i).vectors[y].size(); z++) {
+							writer.write(
+									"[" + mutants.get(i).vectors[y].get(z).arg1 + "," +
+											mutants.get(i).vectors[y].get(z).arg2 +	"]"
+							);
+							if(z < mutants.get(i).vectors[y].size() - 1) {
+								writer.write(" , ");
+							}
+						}
+						writer.write("\n");
+					}
+					else {
+						writer.write(
+							"\tMutant operation " + mutants.get(i).insertedMutant[y] + " has not been killed by any test. \n"
+						);
+					}
+				}
+				
+			}
+			
+			writer.write(
+					"\n------- Coverage ratio ----------"
+					+ "\n" + killedNum + "/" + mutants.size()*3 
+					+ "\n" + killedNum*100/(mutants.size()*3) + "%"
+			);
+
+			//Write mutants count to the output file
+			writer.write(
+				"\n------- Count of inserted mutants ----------"
+				+ "\n'+': " + mutantCount[0]
+				+ "\n'-': " + mutantCount[1]
+				+ "\n'*': " + mutantCount[2]
+				+ "\n'/': " + mutantCount[3]
+			);
+			
+			writer.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
 	}
 }

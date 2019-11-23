@@ -1,5 +1,5 @@
 
-public class injectedMutant8Line13sub {
+public class injectedMutant7Line17sub {
 	
 	public static int addition(int a, int b) {
 		return a+b;
@@ -9,20 +9,12 @@ public class injectedMutant8Line13sub {
 		return a-b;
 	}
 	
-	public static int multiplication(int a, int b) {
-		return a-b;
-	}
-	
-	public static double division(int a, int b) {
-		return a/b;
-	}
-	
 	public static void main(String[] args) {
 		
 		int arg1 = Integer.parseInt(args[0]);
 		int arg2 = Integer.parseInt(args[1]);
 		
-		System.out.println(Integer.toString(addition(arg1, arg2)));
+		System.out.println(addition(arg1, arg2) - subtraction(arg1*1, arg2/1));
 		
 	}
 	

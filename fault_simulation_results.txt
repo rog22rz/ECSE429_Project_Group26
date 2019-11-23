@@ -1,0 +1,67 @@
+
+Mutant #1:
+	Inserted at line: 5
+	Original operation: +
+	Mutant operations: -,*,/
+
+	Mutant operation - has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [0,1]
+	Mutant operation * has been killed by the following vectors: 
+	[26,72] , [1,1] , [-1,-1] , [1,0] , [0,1]
+	Mutant operation / has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1] , [0,0]
+
+Mutant #2:
+	Inserted at line: 9
+	Original operation: -
+	Mutant operations: +,*,/
+
+	Mutant operation + has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [0,1]
+	Mutant operation * has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1]
+	Mutant operation / has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1] , [0,0]
+
+Mutant #3:
+	Inserted at line: 17
+	Original operation: +
+	Mutant operations: -,*,/
+
+	Mutant operation - has been killed by the following vectors: 
+	[26,72] , [1,0] , [0,1]
+	Mutant operation * has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1]
+	Mutant operation / has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1] , [0,0]
+
+Mutant #4:
+	Inserted at line: 17
+	Original operation: *
+	Mutant operations: +,-,/
+
+	Mutant operation + has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1] , [0,0]
+	Mutant operation - has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1] , [0,0]
+	Mutant operation / has not been killed by any test. 
+
+Mutant #5:
+	Inserted at line: 17
+	Original operation: /
+	Mutant operations: +,-,*
+
+	Mutant operation + has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1] , [0,0]
+	Mutant operation - has been killed by the following vectors: 
+	[26,72] , [2,2] , [1,1] , [-1,-1] , [1,0] , [0,1] , [0,0]
+	Mutant operation * has not been killed by any test. 
+
+------- Coverage ratio ----------
+13/15
+86%
+------- Count of inserted mutants ----------
+'+': 3
+'-': 4
+'*': 4
+'/': 4

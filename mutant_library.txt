@@ -9,17 +9,22 @@ Mutant #2:
 	Mutant operations: +,*,/
 
 Mutant #3:
-	Inserted at line: 13
+	Inserted at line: 17
+	Original operation: +
+	Mutant operations: -,*,/
+
+Mutant #4:
+	Inserted at line: 17
 	Original operation: *
 	Mutant operations: +,-,/
 
-Mutant #4:
+Mutant #5:
 	Inserted at line: 17
 	Original operation: /
 	Mutant operations: +,-,*
 
 ------- Count of inserted mutants ----------
 '+': 3
-'-': 3
-'*': 3
-'/': 3
+'-': 4
+'*': 4
+'/': 4
