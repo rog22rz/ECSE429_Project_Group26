@@ -59,12 +59,12 @@ public class Mutation {
 		}
 		
 		for(int i = 0; i < faultFreeOutputs.length; i++) {
-			System.out.println(faultFreeOutputs[i]);
+			System.out.println("Expected: " + faultFreeOutputs[i]);
 		}
 		
 		for(int i = 0; i < mutantOutputs.size(); i++) {
 			for(int y = 0; y < testSuit.size(); y ++) {
-				System.out.println(mutantOutputs.get(i)[y]);
+				System.out.println("Mutant " + i + " test " + y + " " + mutantOutputs.get(i)[y]);
 			}
 		}
 	}
@@ -82,7 +82,6 @@ public class Mutation {
 		testSuit.add(new Input(1, 0));
 		testSuit.add(new Input(0, 1));
 		testSuit.add(new Input(0, 0));
-		testSuit.add(new Input(Integer.MAX_VALUE, Integer.MAX_VALUE));
 		
 		faultFreeOutputs = new String[testSuit.size()];
 	}
@@ -286,18 +285,16 @@ public class Mutation {
 			
 			for(int y = 0; y < testSuit.size(); y++) {
 				try {
-					Process pro3 = Runtime.getRuntime().exec("cmd.exe /c cd generatedFiles");
-					pro3.waitFor();
-					
-					pro3 = Runtime.getRuntime().exec("cmd.exe /c java " + fileNames.get(i).replace("generatedFiles\\", "") + " " + 
+					Process pro3 = Runtime.getRuntime().exec("cmd.exe /c cd generatedFiles && java " + fileNames.get(i).replace("generatedFiles\\", "") + " " + 
 							String.valueOf(testSuit.get(y).arg1) + " " + String.valueOf(testSuit.get(y).arg2));
 					pro3.waitFor();
-					String output = streamToString(pro3.getInputStream());
 					
-					pro3 = Runtime.getRuntime().exec("cmd.exe /c cd ..");
-					pro3.waitFor();
-							
-					System.out.println(output);
+					String output = streamToString(pro3.getInputStream());
+					String error = streamToString(pro3.getErrorStream()) ;
+					
+					if(error != null && !error.contentEquals("null")) {
+						output = error;
+					}
 					
 					outputs[y] = output;
 					
