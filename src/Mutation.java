@@ -56,19 +56,11 @@ public class Mutation {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		/*for(int i = 0; i < faultFreeOutputs.length; i++) {
-			System.out.println("Expected: " + faultFreeOutputs[i]);
-		}
-		
-		for(int i = 0; i < mutantOutputs.size(); i++) {
-			for(int y = 0; y < testSuit.size(); y ++) {
-				System.out.println("Mutant " + i + " test " + y + " " + mutantOutputs.get(i)[y]);
-			}
-		}*/
-		
+
 		assertResults();
 		printFaultSimulation();
+		
+		System.out.println("Terminated");
 	}
 
 	public static void initMap() {
@@ -108,6 +100,7 @@ public class Mutation {
 		}
 	}
 	
+	//Check for an arithmetic operation in a line
 	public static void readline(String line) {
 
 		for (int i = 0; i < line.length(); i++) {
@@ -138,6 +131,7 @@ public class Mutation {
 		}
 	}
 
+	//Generate mutants
 	public static Character[] generateMutants(int original) {
 		Character[] mutants = new Character[3];
 		int counter = 0;
@@ -153,6 +147,7 @@ public class Mutation {
 		return mutants;
 	}
 	
+	//Generate mutant list file
 	public static void createList(String fileName) {
 		File outputFile = new File(fileName);
 		
@@ -185,6 +180,7 @@ public class Mutation {
 		} 
 	}
 
+	//Inject mutants and create mutant files
 	public static void createMutantFiles(String inputFileName) {
 		
 		String baseName;
@@ -261,6 +257,7 @@ public class Mutation {
 		}	
 	}
 	
+	//Compile and run fault free SUT to get expected results
 	public static void getFaultFreeOutput() throws Exception {
 		
 		Process pro1 = Runtime.getRuntime().exec("javac -cp src " + inputFile + ".java");
@@ -280,6 +277,7 @@ public class Mutation {
 		}	
 	}
 	
+	//Compile and run all mutant programs and store their outputs
 	public static void runAllMutantsFiles() throws Exception {
 		
 		ArrayList<MutantRunner> mutantRunners = new ArrayList<MutantRunner>();
@@ -302,6 +300,7 @@ public class Mutation {
 		}
 	}
 	
+	//Parse an InputStream to a String
 	public static String streamToString(InputStream in) {
 		String line = null;
         BufferedReader buff = new BufferedReader(new InputStreamReader(in));
@@ -313,6 +312,7 @@ public class Mutation {
         return line;
 	}
 	
+	//Assert the mutant results to the expected results
 	public static void assertResults() {
 		
 		for(int i = 0; i < mutants.size(); i++) {
@@ -340,6 +340,7 @@ public class Mutation {
 		}
 	}
 	
+	//Generate fault simulation report
 	public static void printFaultSimulation() {
 		
 		File outputFile = new File("fault_simulation_results.txt");
@@ -349,8 +350,9 @@ public class Mutation {
 			//Write all mutants to the output file
 			for (int i = 0; i < mutants.size(); i++) {
 				writer.write(
-					"\nMutant #" + (i+1) + ":\n"
+					"\nMutant #" + (i+1) + ":\n\n"
 					+ "\tInserted at line: " + mutants.get(i).lineOfCode + "\n"
+					+ "\tInserted at index: " + mutants.get(i).index + "\n"
 					+ "\tOriginal operation: " + mutants.get(i).originalArithmetic + "\n"
 					+ "\tMutant operations: " + mutants.get(i).insertedMutant[0] + "," 
 					+ mutants.get(i).insertedMutant[1] + "," + mutants.get(i).insertedMutant[2] + "\n\n"
@@ -370,7 +372,7 @@ public class Mutation {
 								writer.write(" , ");
 							}
 						}
-						writer.write("\n");
+						writer.write("\n\n");
 					}
 					else {
 						writer.write(
